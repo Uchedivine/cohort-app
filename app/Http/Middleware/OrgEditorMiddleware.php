@@ -14,7 +14,7 @@ class OrgEditorMiddleware
         }
 
         if (!auth()->user()->organization_id) {
-            abort(403, 'No organization assigned to your account. Contact the secretary.');
+            return redirect()->route('org-editor.no-org');
         }
 
         return $next($request);

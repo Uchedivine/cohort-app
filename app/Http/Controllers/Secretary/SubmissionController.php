@@ -18,25 +18,29 @@ class SubmissionController extends Controller
         private NotificationService $notificationService
     ) {}
 
-    public function index(Request $request)
-    {
-        $query = Submission::with(['submittable', 'submittedBy'])->latest();
+ public function index(Request $request)
+{
+    $query = Submission::with(['submittable', 'submittedBy'])->latest();
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('type')) {
-            $query->where('submittable_type', $request->type);
-        }
-
-        $submissions = $query->paginate(15);
-
-        // Get statistics
-        $statistics = $this->submissionService->getStatistics();
-
-        return view('secretary.submissions.index', compact('submissions', 'statistics'));
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
     }
+
+    if ($request->filled('type')) {
+        $query->where('submittable_type', $request->type);
+    }
+
+    if ($request->filled('organization')) {
+        $query->whereHasMorph('submittable', '*', function ($q) use ($request) {
+            $q->where('organization_id', $request->organization);
+        });
+    }
+
+    $submissions = $query->paginate(15);
+    $organizations = \App\Models\Organization::orderBy('name')->get();
+
+    return view('secretary.submissions.index', compact('submissions', 'organizations'));
+}
 
     public function show(Submission $submission)
     {

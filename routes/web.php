@@ -69,6 +69,12 @@ require __DIR__.'/auth.php';
 // -------------------------------------------------------
 // Org Editor Routes
 // -------------------------------------------------------
+
+// No-org holding page (auth only, no org_editor middleware)
+Route::get('/org-editor/no-organization', function () {
+    return view('org-editor.no-org');
+})->name('org-editor.no-org')->middleware(['auth']);
+
 Route::prefix('org-editor')->name('org-editor.')->middleware(['auth', 'org_editor'])->group(function () {
 
     Route::get('/dashboard', function () {
@@ -162,6 +168,7 @@ Route::prefix('secretary')->name('secretary.')->middleware(['auth', 'secretary']
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('/create', [UserController::class, 'create'])->name('create');
         Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('/{user}', [UserController::class, 'show'])->name('show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');

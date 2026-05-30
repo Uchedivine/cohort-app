@@ -17,19 +17,21 @@ class OrganizationController extends Controller
     ) {}
 
     public function edit()
-    {
-        $organization = auth()->user()->organization;
+{
+    $organization = auth()->user()->organization;
 
-        if (!$organization) {
-            return redirect()->route('org-editor.dashboard')
-                ->with('error', 'No organization assigned to your account.');
-        }
-
-        // Get pending revision if exists
-        $pendingRevision = $this->revisionService->getLatestRevision($organization);
-
-        return view('org-editor.organization.edit', compact('organization', 'pendingRevision'));
+    if (!$organization) {
+        return redirect()->route('org-editor.dashboard')
+            ->with('error', 'No organization assigned to your account.');
     }
+
+    $pendingSubmission = $organization->submissions()
+        ->whereIn('status', ['submitted', 'needs_changes', 'approved'])
+        ->latest()
+        ->first();
+
+    return view('org-editor.organization.edit', compact('organization', 'pendingSubmission'));
+}
 
     public function update(UpdateOrganizationRequest $request)
     {

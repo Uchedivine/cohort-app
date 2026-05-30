@@ -67,6 +67,12 @@ class UserController extends Controller
             ->with('success', 'User created successfully. Welcome email sent.');
     }
 
+    public function show(User $user)
+    {
+        $user->load(['organization', 'roles', 'submissions']);
+        return view('secretary.users.show', compact('user'));
+    }
+
     public function edit(User $user)
     {
         $organizations = Organization::published()->get();

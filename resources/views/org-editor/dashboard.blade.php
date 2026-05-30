@@ -1,341 +1,115 @@
 @extends('layouts.app')
-@section('title', 'Org Editor Dashboard')
+@section('title', 'Member Dashboard')
 
 @section('content')
-
 <style>
-    .dashboard-hero {
+    .dash-header {
         background: var(--navy);
-        color: var(--white);
-        padding: 60px 2rem 50px;
-    }
-    .dashboard-hero-inner {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .dashboard-hero h1 {
-        font-size: clamp(1.8rem, 4vw, 2.6rem);
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--white);
-    }
-    .dashboard-hero p {
-        font-size: 1rem;
-        color: #94a3b8;
-    }
-
-    .dashboard-content {
-        background: var(--cream);
-        padding: 3rem 2rem;
-        min-height: 70vh;
-    }
-    .dashboard-inner {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-    .stat-card {
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 1.5rem;
+        padding: 48px 2rem;
         text-align: center;
     }
-    .stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 0.75rem;
-    }
-    .stat-number {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.5rem;
-        font-weight: 600;
-        color: var(--navy);
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-    .stat-label {
-        font-size: 0.85rem;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
+    .dash-header h1 { color: var(--white); font-size: 2rem; }
+    .dash-header p  { color: #94a3b8; margin-top: .5rem; font-size: .9rem; }
 
-    .actions-section {
-        margin-bottom: 3rem;
-    }
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--navy);
-        margin-bottom: 1.5rem;
-    }
-    .action-grid {
+    .dash-grid {
+        max-width: 1100px;
+        margin: 3rem auto;
+        padding: 0 2rem;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1.25rem;
     }
-    .action-card {
+    .dash-card {
         background: var(--white);
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 1.75rem;
         text-decoration: none;
         color: var(--text);
-        transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
+        transition: box-shadow .2s, transform .2s, border-color .2s;
     }
-    .action-card:hover {
-        box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-        transform: translateY(-4px);
+    .dash-card:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,.08);
+        transform: translateY(-3px);
         border-color: var(--gold);
     }
-    .action-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-    .action-card h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--navy);
-        margin-bottom: 0.5rem;
-    }
-    .action-card p {
-        font-size: 0.85rem;
-        color: var(--muted);
-    }
+    .dash-card-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .dash-card h3   { font-size: 1.1rem; color: var(--navy); margin-bottom: 4px; }
+    .dash-card p    { font-size: .82rem; color: var(--muted); }
 
-    .submissions-section {
-        margin-bottom: 3rem;
+    .org-banner {
+        max-width: 1100px;
+        margin: 2rem auto 0;
+        padding: 0 2rem;
     }
-    .submissions-table {
-        background: var(--white);
-        border: 1px solid var(--border);
+    .org-banner-inner {
+        background: var(--green-light);
+        border: 1px solid #c6d9c8;
         border-radius: 10px;
-        overflow: hidden;
-    }
-    .table-header {
-        background: #f8f9fa;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border);
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 1rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--navy);
-    }
-    .table-row {
         padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--border);
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 1rem;
+        display: flex;
         align-items: center;
-        transition: background 0.2s;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
-    .table-row:last-child {
-        border-bottom: none;
-    }
-    .table-row:hover {
-        background: #f8f9fa;
-    }
-    .submission-title {
-        font-weight: 500;
-        color: var(--navy);
-    }
-    .submission-type {
-        font-size: 0.8rem;
-        color: var(--muted);
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .status-draft {
-        background: #e5e7eb;
-        color: #6b7280;
-    }
-    .status-submitted {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    .status-needs-changes {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    .status-approved {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    .status-rejected {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    .table-date {
-        font-size: 0.85rem;
-        color: var(--muted);
-    }
-    .table-action {
-        text-decoration: none;
-        color: var(--navy);
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-    .table-action:hover {
-        color: var(--gold);
-    }
+    .org-banner-inner p { font-size: .88rem; color: var(--green); }
+    .org-banner-inner strong { color: var(--navy); }
 
-    .empty-state {
-        text-align: center;
-        padding: 3rem 2rem;
-        color: var(--muted);
-    }
-    .empty-state-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-hero { padding: 50px 1.25rem 40px; }
-        .dashboard-content { padding: 2rem 1.25rem; }
-        .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        .action-grid { grid-template-columns: 1fr; }
-        .table-header, .table-row {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-        }
-        .table-header { display: none; }
-        .table-row > div::before {
-            content: attr(data-label);
-            font-weight: 600;
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
+    @media(max-width:640px){
+        .dash-grid  { padding: 0 1.25rem; margin: 2rem auto; }
+        .org-banner { padding: 0 1.25rem; }
     }
 </style>
 
-<!-- ═══════════════════════════════════════════
-     HERO
-════════════════════════════════════════════ -->
-<section class="dashboard-hero">
-    <div class="dashboard-hero-inner">
-        <h1>Welcome, {{ auth()->user()->organization->name }}</h1>
-        <p>Manage your organization profile, stories, and resources</p>
+<div class="dash-header">
+    <h1>Member Dashboard</h1>
+    <p>Welcome back, {{ auth()->user()->name }}. Manage your organization's content here.</p>
+</div>
+
+@if(auth()->user()->organization)
+<div class="org-banner">
+    <div class="org-banner-inner">
+        <span style="font-size:1.5rem;">🏢</span>
+        <p>You are managing <strong>{{ auth()->user()->organization->name }}</strong></p>
     </div>
-</section>
+</div>
+@endif
 
-<!-- ═══════════════════════════════════════════
-     DASHBOARD CONTENT
-════════════════════════════════════════════ -->
-<section class="dashboard-content">
-    <div class="dashboard-inner">
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">📝</div>
-                <span class="stat-number">{{ $stats['pending'] }}</span>
-                <span class="stat-label">Pending Review</span>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <span class="stat-number">{{ $stats['approved'] }}</span>
-                <span class="stat-label">Approved</span>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🔄</div>
-                <span class="stat-number">{{ $stats['needs_changes'] }}</span>
-                <span class="stat-label">Needs Changes</span>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📖</div>
-                <span class="stat-number">{{ $stats['published_stories'] }}</span>
-                <span class="stat-label">Published Stories</span>
-            </div>
-        </div>
+<div class="dash-grid">
+    <a href="{{ route('org-editor.organization.edit') }}" class="dash-card">
+        <span class="dash-card-icon">✏️</span>
+        <h3>Edit Organization Profile</h3>
+        <p>Update your organization's details, logo, and programs</p>
+    </a>
 
-        <!-- Quick Actions -->
-        <div class="actions-section">
-            <h2 class="section-title">Quick Actions</h2>
-            <div class="action-grid">
-                <a href="{{ route('org-editor.organization.edit') }}" class="action-card">
-                    <div class="action-icon">🏢</div>
-                    <h3>Edit Organization Profile</h3>
-                    <p>Update your organization information</p>
-                </a>
-                <a href="{{ route('org-editor.stories.create') }}" class="action-card">
-                    <div class="action-icon">✍️</div>
-                    <h3>Create New Story</h3>
-                    <p>Share your impact story</p>
-                </a>
-                <a href="{{ route('org-editor.resources.create') }}" class="action-card">
-                    <div class="action-icon">📚</div>
-                    <h3>Submit Resource</h3>
-                    <p>Upload documents or links</p>
-                </a>
-                <a href="{{ route('org-editor.stories.index') }}" class="action-card">
-                    <div class="action-icon">📋</div>
-                    <h3>View All Stories</h3>
-                    <p>Manage your submissions</p>
-                </a>
-            </div>
-        </div>
+    <a href="{{ route('org-editor.stories.create') }}" class="dash-card">
+        <span class="dash-card-icon">📝</span>
+        <h3>Submit a Story</h3>
+        <p>Share your organization's impact stories for review</p>
+    </a>
 
-        <!-- Recent Submissions -->
-        <div class="submissions-section">
-            <h2 class="section-title">Recent Submissions</h2>
-            @if($recentSubmissions->isNotEmpty())
-                <div class="submissions-table">
-                    <div class="table-header">
-                        <div>Title</div>
-                        <div>Type</div>
-                        <div>Status</div>
-                        <div>Date</div>
-                    </div>
-                    @foreach($recentSubmissions as $submission)
-                        <div class="table-row">
-                            <div data-label="Title">
-                                <div class="submission-title">{{ $submission->submittable->title ?? 'Organization Profile' }}</div>
-                                <div class="submission-type">{{ ucfirst($submission->submittable_type) }}</div>
-                            </div>
-                            <div data-label="Type">
-                                <span class="submission-type">{{ ucfirst(class_basename($submission->submittable_type)) }}</span>
-                            </div>
-                            <div data-label="Status">
-                                <span class="status-badge status-{{ $submission->status }}">
-                                    {{ str_replace('_', ' ', $submission->status) }}
-                                </span>
-                            </div>
-                            <div data-label="Date">
-                                <span class="table-date">{{ $submission->created_at->format('M d, Y') }}</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <h3 style="font-size: 1.2rem; color: var(--navy); margin-bottom: 0.5rem;">No submissions yet</h3>
-                    <p>Start by creating a story or updating your organization profile.</p>
-                </div>
-            @endif
-        </div>
-    </div>
-</section>
+    <a href="{{ route('org-editor.stories.index') }}" class="dash-card">
+        <span class="dash-card-icon">📚</span>
+        <h3>My Stories</h3>
+        <p>View and manage your submitted stories and their status</p>
+    </a>
 
+    <a href="{{ route('org-editor.resources.create') }}" class="dash-card">
+        <span class="dash-card-icon">📎</span>
+        <h3>Submit a Resource</h3>
+        <p>Upload documents, links or videos for review</p>
+    </a>
+
+    <a href="{{ route('org-editor.resources.index') }}" class="dash-card">
+        <span class="dash-card-icon">🗂️</span>
+        <h3>My Resources</h3>
+        <p>View and manage your submitted resources and their status</p>
+    </a>
+
+    <a href="{{ route('home') }}" class="dash-card">
+        <span class="dash-card-icon">🌍</span>
+        <h3>View Public Site</h3>
+        <p>See how your organization appears to the public</p>
+    </a>
+</div>
 @endsection
