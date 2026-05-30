@@ -225,11 +225,16 @@
     border-radius: 8px;
     font-size: 1rem;
     background: white;
+    color: #0f172a;
 }
 
 .search-input:focus {
     outline: none;
     border-color: #d4af37;
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
 }
 
 .search-button {
@@ -308,14 +313,15 @@
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
 }
 
 .result-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15),
+                0 0 0 3px rgba(15, 23, 42, 0.1);
 }
 
 .result-image {
@@ -415,4 +421,19 @@
     }
 }
 </style>
+
+<script>
+// Auto-submit form when filter is changed
+document.addEventListener('DOMContentLoaded', function() {
+    const filterInputs = document.querySelectorAll('.search-filters input[type="radio"]');
+    const searchForm = document.querySelector('.search-form');
+    
+    filterInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            searchForm.submit();
+        });
+    });
+});
+</script>
+
 @endsection

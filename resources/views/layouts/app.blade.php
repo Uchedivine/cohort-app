@@ -230,6 +230,7 @@
         <li><a href="{{ route('stories.index') }}">Stories</a></li>
         <li><a href="{{ route('resources.index') }}">Resources</a></li>
         <li><a href="{{ route('events.index') }}">Events</a></li>
+        <li><a href="{{ route('search.index') }}" title="Search">🔍</a></li>
     </ul>
 
     <!-- Desktop CTA -->
@@ -261,6 +262,7 @@
     <a href="{{ route('stories.index') }}">Stories</a>
     <a href="{{ route('resources.index') }}">Resources</a>
     <a href="{{ route('events.index') }}">Events</a>
+    <a href="{{ route('search.index') }}">🔍 Search</a>
     @auth
         @if(auth()->user()->isSecretary())
             <a href="{{ route('secretary.dashboard') }}">Secretary Panel</a>

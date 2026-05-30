@@ -51,6 +51,7 @@ Route::prefix('resources')->name('resources.')->group(function () {
 
 Route::prefix('events')->name('events.')->group(function () {
     Route::get('/', [PublicEventController::class, 'index'])->name('index');
+    Route::get('/calendar-data', [PublicEventController::class, 'calendarData'])->name('calendar-data');
     Route::get('/{slug}', [PublicEventController::class, 'show'])->name('show');
 });
 

@@ -69,12 +69,13 @@
         display: flex;
         flex-direction: column;
         gap: .75rem;
-        transition: box-shadow .25s, transform .25s, border-color .25s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .org-card:hover {
-        box-shadow: 0 6px 24px rgba(0,0,0,.08);
-        transform: translateY(-4px);
-        border-color: var(--gold);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15),
+                    0 0 0 3px rgba(15, 23, 42, 0.1);
+        border-color: var(--navy);
     }
     .org-logo {
         width: 56px; height: 56px;

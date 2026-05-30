@@ -37,4 +37,29 @@ class EventController extends Controller
 
         return view('public.events.show', compact('event'));
     }
+
+    /**
+     * Return events data in FullCalendar JSON format
+     */
+    public function calendarData(Request $request)
+    {
+        $events = Event::published()
+            ->select('id', 'title', 'slug', 'start_date', 'end_date', 'location', 'virtual_link')
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'start' => $event->start_date->toIso8601String(),
+                    'end' => $event->end_date ? $event->end_date->toIso8601String() : null,
+                    'url' => route('events.show', $event->slug),
+                    'extendedProps' => [
+                        'location' => $event->location,
+                        'virtual' => !empty($event->virtual_link),
+                    ],
+                ];
+            });
+
+        return response()->json($events);
+    }
 }
