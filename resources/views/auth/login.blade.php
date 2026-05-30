@@ -1,47 +1,79 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<style>
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+        display: block; font-size: .85rem; font-weight: 500;
+        color: #1a1f2e; margin-bottom: 6px;
+    }
+    .form-group input {
+        width: 100%; border: 1px solid #e2ddd4; border-radius: 6px;
+        padding: 10px 14px; font-size: .875rem; font-family: 'DM Sans', sans-serif;
+        color: #2c2c2c; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus { border-color: #c9a84c; box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+    .form-error { font-size: .78rem; color: #dc2626; margin-top: 4px; }
+    .form-title { font-size: 1.6rem; color: #1a1f2e; margin-bottom: .4rem; text-align: center; }
+    .form-subtitle { font-size: .82rem; color: #6b7280; text-align: center; margin-bottom: 1.75rem; }
+    .btn-submit {
+        width: 100%; background: #c9a84c; color: #1a1f2e; border: none;
+        padding: 12px; border-radius: 6px; font-size: .9rem; font-weight: 500;
+        cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .2s;
+        margin-top: .5rem;
+    }
+    .btn-submit:hover { background: #a8863a; }
+    .form-footer {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 1.25rem; font-size: .82rem; flex-wrap: wrap; gap: .5rem;
+    }
+    .form-footer a { color: #6b7280; text-decoration: none; }
+    .form-footer a:hover { color: #1a1f2e; }
+    .remember-row {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 1.25rem; font-size: .85rem; color: #6b7280;
+    }
+    .remember-row input { width: auto; }
+    .session-status {
+        background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46;
+        padding: 10px 14px; border-radius: 6px; font-size: .85rem; margin-bottom: 1.25rem;
+    }
+</style>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@if (session('status'))
+    <div class="session-status">{{ session('status') }}</div>
+@endif
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+<h2 class="form-title">Welcome back</h2>
+<p class="form-subtitle">Sign in to access your member portal</p>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+<form method="POST" action="{{ route('login') }}">
+    @csrf
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email"
+               value="{{ old('email') }}" required autofocus autocomplete="username">
+        @error('email')<p class="form-error">{{ $message }}</p>@enderror
+    </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"
+               required autocomplete="current-password">
+        @error('password')<p class="form-error">{{ $message }}</p>@enderror
+    </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+    <div class="remember-row">
+        <input type="checkbox" id="remember_me" name="remember">
+        <label for="remember_me" style="cursor:pointer;">Remember me</label>
+    </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+    <button type="submit" class="btn-submit">Sign In</button>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+    <div class="form-footer">
+        <span style="color:#6b7280; font-size:.8rem;">Member access only</span>
+        @if (Route::has('password.request'))
+            <a href="{{ route('password.request') }}">Forgot password?</a>
+        @endif
+    </div>
+</form>
 </x-guest-layout>
