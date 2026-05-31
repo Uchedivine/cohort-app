@@ -55,6 +55,10 @@ Route::prefix('events')->name('events.')->group(function () {
     Route::get('/{slug}', [PublicEventController::class, 'show'])->name('show');
 });
 
+// Organisation Self-Registration
+Route::get('/register/organisation', [App\Http\Controllers\Auth\OrganisationRegisterController::class, 'showForm'])->name('organisation.register.form');
+Route::post('/register/organisation', [App\Http\Controllers\Auth\OrganisationRegisterController::class, 'register'])->name('organisation.register');
+
 // Search Routes
 Route::prefix('search')->name('search.')->group(function () {
     Route::get('/', [SearchController::class, 'index'])->name('index');
@@ -71,10 +75,22 @@ require __DIR__.'/auth.php';
 // Org Editor Routes
 // -------------------------------------------------------
 
-// No-org holding page (auth only, no org_editor middleware)
-Route::get('/org-editor/no-organization', function () {
-    return view('org-editor.no-org');
-})->name('org-editor.no-org')->middleware(['auth']);
+// Org editor holding pages - auth only, no org_editor middleware
+Route::middleware(['auth'])->group(function () {
+    Route::get('/org-editor/no-organization', function () {
+        return view('org-editor.no-org');
+    })->name('org-editor.no-org');
+
+    Route::get('/org-editor/pending', function () {
+        return view('org-editor.pending');
+    })->name('org-editor.pending');
+
+    Route::get('/org-editor/rejected', function () {
+        return view('org-editor.rejected');
+    })->name('org-editor.rejected');
+
+    Route::post('/org-editor/reapply', [App\Http\Controllers\Auth\OrganisationRegisterController::class, 'reapply'])->name('org-editor.reapply');
+});
 
 Route::prefix('org-editor')->name('org-editor.')->middleware(['auth', 'org_editor'])->group(function () {
 
@@ -116,6 +132,7 @@ Route::prefix('org-editor')->name('org-editor.')->middleware(['auth', 'org_edito
         Route::post('/', [EditorStoryController::class, 'store'])->name('store');
         Route::get('/{story}/edit', [EditorStoryController::class, 'edit'])->name('edit');
         Route::put('/{story}', [EditorStoryController::class, 'update'])->name('update');
+        Route::post('/{story}/resubmit', [EditorStoryController::class, 'resubmit'])->name('resubmit');
     });
 
     // Resources
@@ -123,6 +140,10 @@ Route::prefix('org-editor')->name('org-editor.')->middleware(['auth', 'org_edito
         Route::get('/', [EditorResourceController::class, 'index'])->name('index');
         Route::get('/create', [EditorResourceController::class, 'create'])->name('create');
         Route::post('/', [EditorResourceController::class, 'store'])->name('store');
+        Route::get('/{resource}/edit', [EditorResourceController::class, 'edit'])->name('edit');
+        Route::put('/{resource}', [EditorResourceController::class, 'update'])->name('update');
+        Route::delete('/{resource}', [EditorResourceController::class, 'destroy'])->name('destroy');
+        Route::post('/{resource}/resubmit', [EditorResourceController::class, 'resubmit'])->name('resubmit');
     });
 });
 
@@ -191,5 +212,14 @@ Route::prefix('secretary')->name('secretary.')->middleware(['auth', 'secretary']
         Route::get('/', [TagController::class, 'index'])->name('index');
         Route::post('/', [TagController::class, 'store'])->name('store');
         Route::delete('/{tag}', [TagController::class, 'destroy'])->name('destroy');
+    });
+
+    // Organisation Applications
+    Route::prefix('applications')->name('applications.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'index'])->name('index');
+        Route::get('/{organization}', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'show'])->name('show');
+        Route::post('/{organization}/approve', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'approve'])->name('approve');
+        Route::post('/{organization}/reject', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'reject'])->name('reject');
+        Route::post('/{organization}/request-changes', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'requestChanges'])->name('request-changes');
     });
 });

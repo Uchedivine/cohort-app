@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Events\EventPublished;
+use App\Events\OrganisationApplicationSubmitted;
 use App\Events\SubmissionApproved;
 use App\Events\SubmissionNeedsChanges;
 use App\Events\SubmissionRejected;
 use App\Events\SubmissionSubmitted;
 use App\Listeners\LogSubmissionActivity;
+use App\Listeners\NotifySecretaryOfNewApplication;
 use App\Listeners\NotifySecretaryOfNewSubmission;
 use App\Listeners\SendEventPublishedNotification;
 use App\Listeners\SendSubmissionApprovedNotification;
@@ -37,6 +39,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         EventPublished::class => [
             SendEventPublishedNotification::class,
+        ],
+        OrganisationApplicationSubmitted::class => [
+            NotifySecretaryOfNewApplication::class,
         ],
     ];
 

@@ -44,7 +44,7 @@ class SubmissionController extends Controller
 
     public function show(Submission $submission)
     {
-        $submission->load(['submittable', 'submittedBy', 'reviewer']);
+        $submission->load(['submittable', 'submittedBy', 'reviewedBy']);
 
         $revision = null;
         $diff = null;
@@ -90,6 +90,7 @@ class SubmissionController extends Controller
     {
         $request->validate([
             'reviewer_notes' => 'required|string|min:10',
+            'allow_resubmission' => 'nullable|boolean',
         ]);
 
         try {
@@ -97,7 +98,8 @@ class SubmissionController extends Controller
             $this->submissionService->reject(
                 $submission,
                 auth()->user(),
-                $request->reviewer_notes
+                $request->reviewer_notes,
+                $request->boolean('allow_resubmission', false)
             );
 
             // Update submittable status

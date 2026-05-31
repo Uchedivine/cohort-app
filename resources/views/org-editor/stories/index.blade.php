@@ -350,6 +350,26 @@
                                     </button>
                                 </form>
                             @endif
+                            @if($story->status === 'rejected')
+                                @php
+                                    $rejectedSubmission = $story->submissions
+                                        ->where('status', 'rejected')
+                                        ->sortByDesc('created_at')
+                                        ->first();
+                                @endphp
+                                @if($rejectedSubmission && $rejectedSubmission->allow_resubmission)
+                                    <form action="{{ route('org-editor.stories.resubmit', $story) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="btn-sm btn-edit" style="background: var(--green);">
+                                            🔄 Resubmit for Review
+                                        </button>
+                                    </form>
+                                @else
+                                    <span style="font-size:.8rem; color:var(--muted);">
+                                        Contact secretary to resubmit
+                                    </span>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 @endforeach

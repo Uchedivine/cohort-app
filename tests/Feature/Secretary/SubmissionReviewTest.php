@@ -21,6 +21,9 @@ class SubmissionReviewTest extends TestCase
     {
         parent::setUp();
 
+        // Seed roles
+        $this->seed(\Database\Seeders\RoleSeeder::class);
+
         $this->organization = Organization::factory()->create();
         
         $this->secretary = User::factory()->create();
@@ -85,7 +88,7 @@ class SubmissionReviewTest extends TestCase
 
         $submission->refresh();
         $this->assertEquals('approved', $submission->status);
-        $this->assertEquals($this->secretary->id, $submission->reviewer_id);
+        $this->assertEquals($this->secretary->id, $submission->reviewed_by);
 
         $story->refresh();
         $this->assertEquals('published', $story->status);
@@ -156,5 +159,70 @@ class SubmissionReviewTest extends TestCase
             ->get(route('secretary.submissions.index'));
 
         $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function reviewer_is_recorded_when_approving()
+    {
+        $story = Story::factory()->create(['status' => 'submitted']);
+        $submission = Submission::factory()->create([
+            'submittable_type' => Story::class,
+            'submittable_id'   => $story->id,
+            'status'           => 'submitted',
+        ]);
+
+        $this->actingAs($this->secretary)
+            ->post(route('secretary.submissions.approve', $submission));
+
+        $submission->refresh();
+
+        $this->assertEquals($this->secretary->id, $submission->reviewed_by);
+        $this->assertNotNull($submission->reviewedBy);
+        $this->assertEquals($this->secretary->name, $submission->reviewedBy->name);
+    }
+
+    /** @test */
+    public function reviewer_is_recorded_when_rejecting()
+    {
+        $story = Story::factory()->create(['status' => 'submitted']);
+        $submission = Submission::factory()->create([
+            'submittable_type' => Story::class,
+            'submittable_id'   => $story->id,
+            'status'           => 'submitted',
+        ]);
+
+        $this->actingAs($this->secretary)
+            ->post(route('secretary.submissions.reject', $submission), [
+                'reviewer_notes'     => 'Content does not meet the guidelines.',
+                'allow_resubmission' => false,
+            ]);
+
+        $submission->refresh();
+
+        $this->assertEquals($this->secretary->id, $submission->reviewed_by);
+        $this->assertNotNull($submission->reviewedBy);
+        $this->assertEquals($this->secretary->name, $submission->reviewedBy->name);
+    }
+
+    /** @test */
+    public function reviewer_is_recorded_when_requesting_changes()
+    {
+        $story = Story::factory()->create(['status' => 'submitted']);
+        $submission = Submission::factory()->create([
+            'submittable_type' => Story::class,
+            'submittable_id'   => $story->id,
+            'status'           => 'submitted',
+        ]);
+
+        $this->actingAs($this->secretary)
+            ->post(route('secretary.submissions.request-changes', $submission), [
+                'reviewer_notes' => 'Please add more detail about the outcome.',
+            ]);
+
+        $submission->refresh();
+
+        $this->assertEquals($this->secretary->id, $submission->reviewed_by);
+        $this->assertNotNull($submission->reviewedBy);
+        $this->assertEquals($this->secretary->name, $submission->reviewedBy->name);
     }
 }

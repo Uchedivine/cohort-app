@@ -18,6 +18,8 @@ class Submission extends Model
         'reviewed_by',
         'status',
         'reviewer_notes',
+        'allow_resubmission',
+        'parent_submission_id',
         'submitted_at',
         'reviewed_at',
     ];
@@ -25,6 +27,7 @@ class Submission extends Model
     protected $casts = [
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'allow_resubmission' => 'boolean',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -47,6 +50,22 @@ class Submission extends Model
     public function reviewedBy()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Get the parent submission (if this is a resubmission)
+     */
+    public function parentSubmission()
+    {
+        return $this->belongsTo(Submission::class, 'parent_submission_id');
+    }
+
+    /**
+     * Get child submissions (resubmissions of this submission)
+     */
+    public function childSubmissions()
+    {
+        return $this->hasMany(Submission::class, 'parent_submission_id');
     }
 
     // Scopes

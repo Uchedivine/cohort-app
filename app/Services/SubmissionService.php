@@ -27,7 +27,7 @@ class SubmissionService
         self::STATUS_SUBMITTED => [self::STATUS_APPROVED, self::STATUS_REJECTED, self::STATUS_NEEDS_CHANGES],
         self::STATUS_NEEDS_CHANGES => [self::STATUS_SUBMITTED],
         self::STATUS_APPROVED => [],
-        self::STATUS_REJECTED => [],
+        self::STATUS_REJECTED => [self::STATUS_SUBMITTED], // Allow resubmission if secretary enables it
     ];
 
     /**
@@ -111,7 +111,7 @@ class SubmissionService
             // Update submission status
             $submission->update([
                 'status' => self::STATUS_APPROVED,
-                'reviewer_id' => $reviewer->id,
+                'reviewed_by' => $reviewer->id,
                 'reviewer_notes' => $notes,
                 'reviewed_at' => now(),
             ]);
@@ -142,18 +142,20 @@ class SubmissionService
      * @param Submission $submission
      * @param User $reviewer
      * @param string $reason
+     * @param bool $allowResubmission
      * @return Submission
      */
-    public function reject(Submission $submission, User $reviewer, string $reason): Submission
+    public function reject(Submission $submission, User $reviewer, string $reason, bool $allowResubmission = false): Submission
     {
         $this->validateTransition($submission->status, self::STATUS_REJECTED);
 
-        return DB::transaction(function () use ($submission, $reviewer, $reason) {
+        return DB::transaction(function () use ($submission, $reviewer, $reason, $allowResubmission) {
             $submission->update([
                 'status' => self::STATUS_REJECTED,
-                'reviewer_id' => $reviewer->id,
+                'reviewed_by' => $reviewer->id,
                 'reviewer_notes' => $reason,
                 'reviewed_at' => now(),
+                'allow_resubmission' => $allowResubmission,
             ]);
 
             // Log activity
@@ -163,6 +165,7 @@ class SubmissionService
                 ->withProperties([
                     'status' => self::STATUS_REJECTED,
                     'reason' => $reason,
+                    'allow_resubmission' => $allowResubmission,
                 ])
                 ->log('Submission rejected');
 
@@ -188,7 +191,7 @@ class SubmissionService
         return DB::transaction(function () use ($submission, $reviewer, $feedback) {
             $submission->update([
                 'status' => self::STATUS_NEEDS_CHANGES,
-                'reviewer_id' => $reviewer->id,
+                'reviewed_by' => $reviewer->id,
                 'reviewer_notes' => $feedback,
                 'reviewed_at' => now(),
             ]);
@@ -207,6 +210,60 @@ class SubmissionService
             event(new \App\Events\SubmissionNeedsChanges($submission, $reviewer));
 
             return $submission->fresh();
+        });
+    }
+
+    /**
+     * Resubmit a rejected submission (creates new submission linked to rejected one)
+     *
+     * @param Model $submittable
+     * @param Submission $rejectedSubmission
+     * @param User $submittedBy
+     * @return Submission
+     * @throws InvalidArgumentException
+     */
+    public function resubmit(Model $submittable, Submission $rejectedSubmission, User $submittedBy): Submission
+    {
+        // Verify the rejected submission allows resubmission
+        if (!$rejectedSubmission->allow_resubmission) {
+            throw new InvalidArgumentException('This submission does not allow resubmission.');
+        }
+
+        // Verify the rejected submission is actually rejected
+        if ($rejectedSubmission->status !== self::STATUS_REJECTED) {
+            throw new InvalidArgumentException('Only rejected submissions can be resubmitted.');
+        }
+
+        return DB::transaction(function () use ($submittable, $rejectedSubmission, $submittedBy) {
+            // Create new submission linked to the rejected one
+            $newSubmission = Submission::create([
+                'submittable_type' => get_class($submittable),
+                'submittable_id' => $submittable->id,
+                'submitted_by' => $submittedBy->id,
+                'status' => self::STATUS_SUBMITTED,
+                'submitted_at' => now(),
+                'parent_submission_id' => $rejectedSubmission->id,
+            ]);
+
+            // Update submittable status
+            $submittable->update([
+                'status' => 'submitted',
+            ]);
+
+            // Log activity
+            activity()
+                ->performedOn($newSubmission)
+                ->causedBy($submittedBy)
+                ->withProperties([
+                    'status' => self::STATUS_SUBMITTED,
+                    'parent_submission_id' => $rejectedSubmission->id,
+                ])
+                ->log('Submission resubmitted after rejection');
+
+            // Fire event for notifications
+            event(new \App\Events\SubmissionSubmitted($newSubmission));
+
+            return $newSubmission;
         });
     }
 

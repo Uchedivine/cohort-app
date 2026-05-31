@@ -425,7 +425,16 @@
                         @csrf
                         <div class="form-group">
                             <label for="reject_notes">Reject Submission</label>
-                            <textarea id="reject_notes" name="notes" class="form-control" placeholder="Explain why this is being rejected..." required></textarea>
+                            <textarea id="reject_notes" name="reviewer_notes" class="form-control" placeholder="Explain why this is being rejected..." required></textarea>
+                        </div>
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="allow_resubmission" value="1" style="width: auto;">
+                                <span style="font-weight: normal; font-size: 0.9rem;">Allow organization to resubmit after making changes</span>
+                            </label>
+                            <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; margin-left: 1.5rem;">
+                                If checked, the organization can revise and resubmit this content
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-reject">
                             ✕ Reject

@@ -154,6 +154,46 @@ class StoryController extends Controller
             ->with('success', $message);
     }
 
+    /**
+     * Resubmit a rejected story
+     */
+    public function resubmit(Story $story)
+    {
+        $this->authorizeStory($story);
+
+        // Verify story is rejected
+        if ($story->status !== 'rejected') {
+            return redirect()->route('org-editor.stories.index')
+                ->with('error', 'Only rejected stories can be resubmitted.');
+        }
+
+        // Get the rejected submission
+        $rejectedSubmission = $story->submissions()
+            ->where('status', 'rejected')
+            ->latest()
+            ->first();
+
+        if (!$rejectedSubmission || !$rejectedSubmission->allow_resubmission) {
+            return redirect()->route('org-editor.stories.index')
+                ->with('error', 'This story is not eligible for resubmission.');
+        }
+
+        try {
+            // Create new submission linked to rejected one
+            $newSubmission = $this->submissionService->resubmit(
+                $story,
+                $rejectedSubmission,
+                auth()->user()
+            );
+
+            return redirect()->route('org-editor.stories.index')
+                ->with('success', 'Story resubmitted for review.');
+        } catch (\Exception $e) {
+            return redirect()->route('org-editor.stories.index')
+                ->with('error', 'Failed to resubmit story: ' . $e->getMessage());
+        }
+    }
+
     private function authorizeStory(Story $story)
     {
         if ($story->organization_id !== auth()->user()->organization_id) {

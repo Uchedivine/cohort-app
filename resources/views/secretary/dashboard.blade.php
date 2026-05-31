@@ -64,6 +64,13 @@
         <span class="badge">Pending submissions</span>
     </a>
 
+    <a href="{{ route('secretary.applications.index') }}" class="dash-card">
+        <span class="dash-card-icon">📬</span>
+        <h3>Organisation Applications</h3>
+        <p>Review and approve organisations applying to join the cohort</p>
+        <span class="badge">New applications</span>
+    </a>
+
     <a href="{{ route('secretary.events.index') }}" class="dash-card">
         <span class="dash-card-icon">📅</span>
         <h3>Manage Events</h3>

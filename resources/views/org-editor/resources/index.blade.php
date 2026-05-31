@@ -100,6 +100,7 @@
                         <th>Status</th>
                         <th>Submitted</th>
                         <th>Notes</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,6 +122,37 @@
                                     {{ Str::limit($resource->submissions->last()->reviewer_notes, 60) }}
                                 @else
                                     —
+                                @endif
+                            </td>
+                            <td style="white-space:nowrap;">
+                                @if(in_array($resource->status, ['draft', 'needs_changes']))
+                                    <a href="{{ route('org-editor.resources.edit', $resource) }}" 
+                                       style="display:inline-block; padding:5px 12px; background:var(--navy); color:white; border-radius:4px; font-size:.75rem; text-decoration:none; margin-right:4px;">
+                                        ✏️ Edit
+                                    </a>
+                                @endif
+                                @if($resource->status === 'rejected')
+                                    @php
+                                        $rejectedSubmission = $resource->submissions
+                                            ->where('status', 'rejected')
+                                            ->sortByDesc('created_at')
+                                            ->first();
+                                    @endphp
+                                    @if($rejectedSubmission && $rejectedSubmission->allow_resubmission)
+                                        <form action="{{ route('org-editor.resources.resubmit', $resource) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" 
+                                                    style="padding:5px 12px; background:var(--green); color:white; border:none; border-radius:4px; font-size:.75rem; cursor:pointer;">
+                                                🔄 Resubmit
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span style="font-size:.75rem; color:var(--muted);">
+                                            Contact secretary
+                                        </span>
+                                    @endif
+                                @elseif(!in_array($resource->status, ['draft', 'needs_changes']))
+                                    <span style="font-size:.75rem; color:var(--muted);">—</span>
                                 @endif
                             </td>
                         </tr>

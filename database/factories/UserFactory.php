@@ -42,4 +42,24 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Create a user with the org_editor role.
+     */
+    public function orgEditor(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('org_editor');
+        });
+    }
+
+    /**
+     * Create a user with the secretary role.
+     */
+    public function secretary(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('secretary');
+        });
+    }
 }
