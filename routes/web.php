@@ -145,6 +145,13 @@ Route::prefix('org-editor')->name('org-editor.')->middleware(['auth', 'org_edito
         Route::delete('/{resource}', [EditorResourceController::class, 'destroy'])->name('destroy');
         Route::post('/{resource}/resubmit', [EditorResourceController::class, 'resubmit'])->name('resubmit');
     });
+
+    // Messages
+    Route::prefix('messages')->name('messages.')->group(function () {
+        Route::get('/', [App\Http\Controllers\OrgEditor\MessageController::class, 'index'])->name('index');
+        Route::get('/{message}', [App\Http\Controllers\OrgEditor\MessageController::class, 'show'])->name('show');
+        Route::post('/{message}/reply', [App\Http\Controllers\OrgEditor\MessageController::class, 'reply'])->name('reply');
+    });
 });
 
 // -------------------------------------------------------
@@ -221,5 +228,14 @@ Route::prefix('secretary')->name('secretary.')->middleware(['auth', 'secretary']
         Route::post('/{organization}/approve', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'approve'])->name('approve');
         Route::post('/{organization}/reject', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'reject'])->name('reject');
         Route::post('/{organization}/request-changes', [App\Http\Controllers\Secretary\OrganisationApplicationController::class, 'requestChanges'])->name('request-changes');
+    });
+
+    // Messages
+    Route::prefix('messages')->name('messages.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Secretary\MessageController::class, 'index'])->name('index');
+        Route::get('/compose', [App\Http\Controllers\Secretary\MessageController::class, 'compose'])->name('compose');
+        Route::post('/', [App\Http\Controllers\Secretary\MessageController::class, 'store'])->name('store');
+        Route::get('/{message}', [App\Http\Controllers\Secretary\MessageController::class, 'show'])->name('show');
+        Route::post('/{message}/reply', [App\Http\Controllers\Secretary\MessageController::class, 'reply'])->name('reply');
     });
 });

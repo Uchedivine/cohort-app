@@ -106,6 +106,20 @@
         <p>View and manage your submitted resources and their status</p>
     </a>
 
+    <a href="{{ route('org-editor.messages.index') }}" class="dash-card" style="position:relative;">
+        <span class="dash-card-icon">💬</span>
+        <h3>Messages</h3>
+        <p>View messages from the secretary</p>
+        @php
+            $unreadCount = \App\Http\Controllers\OrgEditor\MessageController::getUnreadCount();
+        @endphp
+        @if($unreadCount > 0)
+            <span style="position:absolute; top:1rem; right:1rem; background:var(--gold); color:var(--navy); padding:4px 10px; border-radius:20px; font-size:.7rem; font-weight:600;">
+                {{ $unreadCount }} new
+            </span>
+        @endif
+    </a>
+
     <a href="{{ route('home') }}" class="dash-card">
         <span class="dash-card-icon">🌍</span>
         <h3>View Public Site</h3>

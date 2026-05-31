@@ -71,6 +71,12 @@
         <span class="badge">New applications</span>
     </a>
 
+    <a href="{{ route('secretary.messages.index') }}" class="dash-card">
+        <span class="dash-card-icon">💬</span>
+        <h3>Messages</h3>
+        <p>Send messages to organisations and view conversations</p>
+    </a>
+
     <a href="{{ route('secretary.events.index') }}" class="dash-card">
         <span class="dash-card-icon">📅</span>
         <h3>Manage Events</h3>
