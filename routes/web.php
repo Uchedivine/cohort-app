@@ -146,6 +146,16 @@ Route::prefix('org-editor')->name('org-editor.')->middleware(['auth', 'org_edito
         Route::post('/{resource}/resubmit', [EditorResourceController::class, 'resubmit'])->name('resubmit');
     });
 
+    // Events
+    Route::prefix('events')->name('events.')->group(function () {
+        Route::get('/', [App\Http\Controllers\OrgEditor\EventController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\OrgEditor\EventController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\OrgEditor\EventController::class, 'store'])->name('store');
+        Route::get('/{event}/edit', [App\Http\Controllers\OrgEditor\EventController::class, 'edit'])->name('edit');
+        Route::put('/{event}', [App\Http\Controllers\OrgEditor\EventController::class, 'update'])->name('update');
+        Route::post('/{event}/resubmit', [App\Http\Controllers\OrgEditor\EventController::class, 'resubmit'])->name('resubmit');
+    });
+
     // Messages
     Route::prefix('messages')->name('messages.')->group(function () {
         Route::get('/', [App\Http\Controllers\OrgEditor\MessageController::class, 'index'])->name('index');

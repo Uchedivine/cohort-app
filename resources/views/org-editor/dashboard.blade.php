@@ -106,6 +106,18 @@
         <p>View and manage your submitted resources and their status</p>
     </a>
 
+    <a href="{{ route('org-editor.events.create') }}" class="dash-card">
+        <span class="dash-card-icon">📅</span>
+        <h3>Submit an Event</h3>
+        <p>Create and submit events for review</p>
+    </a>
+
+    <a href="{{ route('org-editor.events.index') }}" class="dash-card">
+        <span class="dash-card-icon">🗓️</span>
+        <h3>My Events</h3>
+        <p>View and manage your submitted events and their status</p>
+    </a>
+
     <a href="{{ route('org-editor.messages.index') }}" class="dash-card" style="position:relative;">
         <span class="dash-card-icon">💬</span>
         <h3>Messages</h3>

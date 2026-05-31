@@ -14,6 +14,7 @@ class Event extends Model
 
     protected $fillable = [
         'user_id',
+        'organization_id',
         'title',
         'slug',
         'banner_image',
@@ -69,6 +70,16 @@ class Event extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function submissions()
+    {
+        return $this->morphMany(Submission::class, 'submittable');
     }
 
     public function media()
