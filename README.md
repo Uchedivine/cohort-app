@@ -458,4 +458,4 @@ For support, email support@cohortapp.com or open an issue on GitHub.
 
 ---
 
-**Made with ❤️ for African Civil Society**
+**Made with ❤️ for African Civil Societys**
