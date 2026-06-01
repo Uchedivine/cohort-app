@@ -12,82 +12,53 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create roles
-        $secretary = Role::create(['name' => 'secretary']);
-        $orgEditor = Role::create(['name' => 'org_editor']);
+        $secretary = Role::firstOrCreate(['name' => 'secretary']);
+        $orgEditor = Role::firstOrCreate(['name' => 'org_editor']);
 
-        // Create permissions
         $permissions = [
-            // Organization permissions
-            'view organizations',
-            'create organizations',
-            'edit organizations',
-            'delete organizations',
-            'publish organizations',
-
-            // Story permissions
-            'view stories',
-            'create stories',
-            'edit stories',
-            'delete stories',
-            'publish stories',
-
-            // Resource permissions
-            'view resources',
-            'create resources',
-            'edit resources',
-            'delete resources',
-            'publish resources',
-
-            // Event permissions
-            'view events',
-            'create events',
-            'edit events',
-            'delete events',
-            'publish events',
-
-            // Submission permissions
-            'view submissions',
-            'review submissions',
-            'approve submissions',
-            'reject submissions',
-
-            // User management
-            'manage users',
-            'manage tags',
-            'manage settings',
+            'view organizations', 'create organizations', 'edit organizations',
+            'delete organizations', 'publish organizations',
+            'view stories', 'create stories', 'edit stories',
+            'delete stories', 'publish stories',
+            'view resources', 'create resources', 'edit resources',
+            'delete resources', 'publish resources',
+            'view events', 'create events', 'edit events',
+            'delete events', 'publish events',
+            'view submissions', 'review submissions', 'approve submissions', 'reject submissions',
+            'manage users', 'manage tags', 'manage settings',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Assign all permissions to secretary
         $secretary->givePermissionTo(Permission::all());
 
-        // Assign limited permissions to org_editor
         $orgEditor->givePermissionTo([
-            'view organizations',
-            'edit organizations',
-            'view stories',
-            'create stories',
-            'edit stories',
-            'view resources',
-            'create resources',
-            'edit resources',
-            'view events',
-            'view submissions',
+            'view organizations', 'edit organizations',
+            'view stories', 'create stories', 'edit stories',
+            'view resources', 'create resources', 'edit resources',
+            'view events', 'view submissions',
         ]);
 
-        // Create default secretary account
-        $secretaryUser = User::create([
-            'name' => 'Cohort Secretary',
-            'email' => 'secretary@cohortapp.com',
-            'password' => Hash::make('Secretary@2024!'),
-        ]);
+        $secretaryUser = User::firstOrCreate(
+            ['email' => 'secretary@cohortapp.com'],
+            [
+                'name' => 'Cohort Secretary',
+                'password' => Hash::make('Secretary@2024!'),
+            ]
+        );
         $secretaryUser->assignRole('secretary');
+
+        $editorUser = User::firstOrCreate(
+            ['email' => 'editor@cohortapp.com'],
+            [
+                'name' => 'Organisation Editor',
+                'password' => Hash::make('Editor@2024!'),
+            ]
+        );
+        $editorUser->assignRole('org_editor');
     }
 }
