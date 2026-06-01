@@ -5,40 +5,24 @@ namespace App\Listeners;
 use App\Events\SubmissionSubmitted;
 use App\Mail\NewSubmissionMail;
 use App\Models\User;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
-class NotifySecretaryOfNewSubmission implements ShouldQueue
+class NotifySecretaryOfNewSubmission
 {
-    /**
-     * Handle the event.
-     */
     public function handle(SubmissionSubmitted $event): void
     {
-        // Get all secretary users
-        $secretaries = User::role('secretary')
-            ->whereNotNull('email')
-            ->get();
-
-        if ($secretaries->isEmpty()) {
-            return;
-        }
+        $secretaries = User::role('secretary')->whereNotNull('email')->get();
+        if ($secretaries->isEmpty()) return;
 
         foreach ($secretaries as $secretary) {
-            Mail::to($secretary)->queue(
-                new NewSubmissionMail($event->submission, $secretary)
-            );
+            try {
+                Mail::to($secretary)->send(new NewSubmissionMail($event->submission, $secretary));
+            } catch (\Exception $e) {
+                logger()->error('Failed to notify secretary of new submission', [
+                    'submission_id' => $event->submission->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
-    }
-
-    /**
-     * Handle a job failure.
-     */
-    public function failed(SubmissionSubmitted $event, \Throwable $exception): void
-    {
-        logger()->error('Failed to notify secretary of new submission', [
-            'submission_id' => $event->submission->id,
-            'error' => $exception->getMessage(),
-        ]);
     }
 }
