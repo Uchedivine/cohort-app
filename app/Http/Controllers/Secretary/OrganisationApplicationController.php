@@ -38,10 +38,13 @@ class OrganisationApplicationController extends Controller
             'rejection_reason' => null,
         ]);
 
-        // Send approval email
         if ($organization->user) {
-            \Mail::to($organization->user->email)
-                ->queue(new \App\Mail\OrganisationApproved($organization));
+            try {
+                \Mail::to($organization->user->email)
+                    ->send(new \App\Mail\OrganisationApproved($organization));
+            } catch (\Exception $e) {
+                logger()->error('Failed to send approval email', ['error' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('secretary.applications.index')
@@ -59,10 +62,13 @@ class OrganisationApplicationController extends Controller
             'rejection_reason' => $request->rejection_reason,
         ]);
 
-        // Send rejection email
         if ($organization->user) {
-            \Mail::to($organization->user->email)
-                ->queue(new \App\Mail\OrganisationRejected($organization));
+            try {
+                \Mail::to($organization->user->email)
+                    ->send(new \App\Mail\OrganisationRejected($organization));
+            } catch (\Exception $e) {
+                logger()->error('Failed to send rejection email', ['error' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('secretary.applications.index')
